@@ -7,6 +7,7 @@ export default defineSchema({
     email: v.string(),
     tokenIdentifier: v.string(),
     imageUrl: v.optional(v.string()),
+    bio: v.optional(v.string()),
   })
     .index("by_token", ["tokenIdentifier"])
     .index("by_email", ["email"])
@@ -64,4 +65,17 @@ export default defineSchema({
       })
     ),
   }),
+
+  // Group Invites
+  invites: defineTable({
+    groupId: v.id("groups"),
+    code: v.string(),
+    role: v.string(), // role granted on accept: "member" or "admin"
+    email: v.optional(v.string()), // optional targeted email
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    expiresAt: v.number(),
+    acceptedBy: v.optional(v.id("users")),
+    status: v.string(), // "pending" | "accepted" | "revoked" | "expired"
+  }).index("by_code", ["code"]).index("by_group", ["groupId"]),
 });

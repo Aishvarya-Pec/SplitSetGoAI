@@ -18,7 +18,16 @@ export default clerkMiddleware(async (auth, req) => {
     return redirectToSignIn();
   }
 
-  return NextResponse.next();
+  const res = NextResponse.next();
+  // Security headers / basic CSP
+  res.headers.set(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'self';"
+  );
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
+  return res;
 });
 
 export const config = {

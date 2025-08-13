@@ -9,7 +9,7 @@ import { BarLoader } from "react-spinners";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusCircle, ArrowLeftRight, ArrowLeft, Users } from "lucide-react";
+import { PlusCircle, ArrowLeftRight, ArrowLeft, Users, LinkIcon } from "lucide-react";
 import { ExpenseList } from "@/components/expense-list";
 import { SettlementList } from "@/components/settlement-list";
 import { GroupBalances } from "@/components/group-balances";
@@ -23,6 +23,8 @@ export default function GroupExpensesPage() {
   const { data, isLoading } = useConvexQuery(api.groups.getGroupExpenses, {
     groupId: params.id,
   });
+  const { mutateAsync: createInvite } = api.groups.createInvite.useMutation?.() || {};
+  const [inviteLink, setInviteLink] = useState("");
 
   if (isLoading) {
     return (
@@ -67,6 +69,25 @@ export default function GroupExpensesPage() {
           </div>
 
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={async () => {
+                try {
+                  const res = await createInvite?.({ groupId: params.id, role: "member" });
+                  if (res?.code) {
+                    const url = `${window.location.origin}/invite/${res.code}`;
+                    setInviteLink(url);
+                    navigator.clipboard.writeText(url);
+                  }
+                } catch (e) {}
+              }}
+            >
+              <LinkIcon className="mr-2 h-4 w-4" />
+              Invite link
+            </Button>
+            {inviteLink && (
+              <span className="text-xs text-muted-foreground self-center">Copied invite link</span>
+            )}
             <Button asChild variant="outline">
               <Link href={`/settlements/group/${params.id}`}>
                 <ArrowLeftRight className="mr-2 h-4 w-4" />

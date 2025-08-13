@@ -13,6 +13,8 @@ export function GroupList({ groups }) {
     );
   }
 
+  const fire = async () => {};
+
   return (
     <div className="space-y-3">
       {groups.map((group) => {
@@ -25,6 +27,7 @@ export function GroupList({ groups }) {
             href={`/groups/${group.id}`}
             key={group.id}
             className="flex items-center justify-between hover:bg-muted p-2 rounded-md transition-colors"
+            onClick={fire}
           >
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 p-2 rounded-md">
@@ -41,7 +44,7 @@ export function GroupList({ groups }) {
             {hasBalance && (
               <span
                 className={`text-sm font-medium ${
-                  balance > 0 ? "text-green-600" : "text-red-600"
+                  balance > 0 ? "text-[#16a34a]" : "text-red-600"
                 }`}
               >
                 {balance > 0 ? "+" : ""}${balance.toFixed(2)}

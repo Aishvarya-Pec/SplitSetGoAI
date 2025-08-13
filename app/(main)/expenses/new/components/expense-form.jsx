@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { ParticipantSelector } from "./participant-selector";
 import { GroupSelector } from "./group-selector";
@@ -47,6 +48,7 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [splits, setSplits] = useState([]);
+  const [isScanning, setIsScanning] = useState(false);
 
   // Mutations and queries
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
@@ -149,6 +151,33 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
     }
   };
 
+  const handleOcrScan = async () => {
+    try {
+      setIsScanning(true);
+      // open file picker
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) return setIsScanning(false);
+        const form = new FormData();
+        form.append("file", file);
+        const res = await fetch("/api/ocr", { method: "POST", body: form });
+        const json = await res.json();
+        if (json?.description) setValue("description", json.description);
+        if (json?.amount) setValue("amount", String(json.amount));
+        if (json?.date) setSelectedDate(new Date(json.date));
+        toast.success("Receipt scanned");
+        setIsScanning(false);
+      };
+      input.click();
+    } catch (e) {
+      setIsScanning(false);
+      toast.error("Failed to scan receipt");
+    }
+  };
+
   if (!currentUser) return null;
 
   return (
@@ -163,6 +192,9 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
               placeholder="Lunch, movie tickets, etc."
               {...register("description")}
             />
+            <Button type="button" variant="outline" size="sm" onClick={handleOcrScan} className="mt-2">
+              <Camera className="h-4 w-4 mr-2" /> {isScanning ? "Scanning..." : "Scan receipt (OCR)"}
+            </Button>
             {errors.description && (
               <p className="text-sm text-red-500">
                 {errors.description.message}

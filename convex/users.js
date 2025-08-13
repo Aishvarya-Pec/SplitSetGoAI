@@ -106,3 +106,21 @@ export const searchUsers = query({
       }));
   },
 });
+
+// Update profile (name, imageUrl, bio)
+export const updateProfile = mutation({
+  args: {
+    name: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+    bio: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const current = await ctx.runQuery(internal.users.getCurrentUser);
+    const patch = {};
+    if (args.name !== undefined) patch.name = args.name;
+    if (args.imageUrl !== undefined) patch.imageUrl = args.imageUrl;
+    if (args.bio !== undefined) patch.bio = args.bio;
+    await ctx.db.patch(current._id, patch);
+    return { success: true };
+  },
+});

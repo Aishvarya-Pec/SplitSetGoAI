@@ -43,13 +43,13 @@ export default function Dashboard() {
     <div className="container mx-auto py-6 space-y-6">
       {isLoading ? (
         <div className="w-full py-12 flex justify-center">
-          <BarLoader width={"100%"} color="#36d7b7" />
+          <BarLoader width={"100%"} color="#22C55E" />
         </div>
       ) : (
         <>
           <div className="flex  justify-between flex-col sm:flex-row sm:items-center gap-4">
             <h1 className="text-5xl gradient-title">Dashboard</h1>
-            <Button asChild>
+            <Button asChild className="bg-[#22C55E] hover:bg-[#16a34a] shadow-md">
               <Link href="/expenses/new">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add expense
@@ -68,7 +68,7 @@ export default function Dashboard() {
               <CardContent>
                 <div className="text-2xl font-bold">
                   {balances?.totalBalance > 0 ? (
-                    <span className="text-green-600">
+                    <span className="text-[#22C55E]">
                       +${balances?.totalBalance.toFixed(2)}
                     </span>
                   ) : balances?.totalBalance < 0 ? (
@@ -96,7 +96,7 @@ export default function Dashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-[#16a34a]">
                   ${balances?.youAreOwed.toFixed(2)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">

@@ -10,6 +10,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { PieChart, Pie, Cell, Legend } from "recharts";
+import { api } from "@/convex/_generated/api";
+import { useConvexQuery } from "@/hooks/use-convex-query";
 
 export function ExpenseSummary({ monthlySpending, totalSpent }) {
   // Format monthly data for chart
@@ -41,13 +44,18 @@ export function ExpenseSummary({ monthlySpending, totalSpent }) {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth();
 
+  const { data: categoryBreakdown } = useConvexQuery(
+    api.dashboard.getCategoryBreakdown
+  );
+  const COLORS = ["#22C55E", "#0ea5e9", "#a855f7", "#f59e0b", "#ef4444", "#10b981"];
+
   return (
-    <Card>
+      <Card>
       <CardHeader>
         <CardTitle>Expense Summary</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="bg-muted rounded-lg p-4">
             <p className="text-sm text-muted-foreground">Total this month</p>
             <h3 className="text-2xl font-bold mt-1">
@@ -72,10 +80,33 @@ export function ExpenseSummary({ monthlySpending, totalSpent }) {
                 formatter={(value) => [`$${value.toFixed(2)}`, "Amount"]}
                 labelFormatter={() => "Spending"}
               />
-              <Bar dataKey="amount" fill="#36d7b7" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="amount" fill="#22C55E" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
+
+        {categoryBreakdown && categoryBreakdown.length > 0 && (
+          <div className="h-64 mt-6">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={categoryBreakdown}
+                  dataKey="total"
+                  nameKey="category"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={2}
+                >
+                  {categoryBreakdown.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Legend />
+                <Tooltip formatter={(v, n) => [`$${v.toFixed(2)}`, n]} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
         <p className="text-xs text-muted-foreground text-center mt-2">
           Monthly spending for {currentYear}

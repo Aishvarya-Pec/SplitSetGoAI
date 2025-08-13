@@ -8,8 +8,26 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Splitr",
-  description: "The smartest way to split expenses with friends",
+  title: "SplitSetGO",
+  description: "Bill? Chill.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
+  openGraph: {
+    title: "SplitSetGO",
+    description: "Bill? Chill. The smartest way to split expenses with friends.",
+    url: "https://splitsetgo.app",
+    siteName: "SplitSetGO",
+    images: [
+      { url: "/hero.png", width: 1200, height: 630, alt: "SplitSetGO" },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SplitSetGO",
+    description: "Bill? Chill. The smartest way to split expenses with friends.",
+    images: ["/hero.png"],
+  },
 };
 
 export default function RootLayout({ children }) {

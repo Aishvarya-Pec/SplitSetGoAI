@@ -1,6 +1,8 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { mutation } from "./_generated/server";
+import { nanoid } from "nanoid";
 
 export const getGroupOrMembers = query({
   args: {
@@ -189,5 +191,95 @@ export const getGroupExpenses = query({
       balances,
       userLookupMap,
     };
+  },
+});
+
+// Create an invite for a group
+export const createInvite = mutation({
+  args: {
+    groupId: v.id("groups"),
+    role: v.string(),
+    email: v.optional(v.string()),
+    expiresInHours: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const currentUser = await ctx.runQuery(internal.users.getCurrentUser);
+    const group = await ctx.db.get(args.groupId);
+    if (!group) throw new Error("Group not found");
+
+    const isAdmin = group.members.some(
+      (m) => m.userId === currentUser._id && m.role === "admin"
+    );
+    if (!isAdmin) throw new Error("Only admins can create invites");
+
+    const code = nanoid(10);
+    const now = Date.now();
+    const expiresAt = now + 1000 * 60 * 60 * (args.expiresInHours ?? 72);
+
+    const inviteId = await ctx.db.insert("invites", {
+      groupId: group._id,
+      code,
+      role: args.role ?? "member",
+      email: args.email,
+      createdBy: currentUser._id,
+      createdAt: now,
+      expiresAt,
+      status: "pending",
+    });
+
+    return { id: inviteId, code };
+  },
+});
+
+// Accept an invite
+export const acceptInvite = mutation({
+  args: { code: v.string() },
+  handler: async (ctx, { code }) => {
+    const currentUser = await ctx.runQuery(internal.users.getCurrentUser);
+    const invite = await ctx.db
+      .query("invites")
+      .withIndex("by_code", (q) => q.eq("code", code))
+      .first();
+    if (!invite) throw new Error("Invite not found");
+    if (invite.status !== "pending") throw new Error("Invite is not active");
+    if (invite.expiresAt < Date.now()) throw new Error("Invite expired");
+    if (invite.email && invite.email !== currentUser.email)
+      throw new Error("Invite is restricted to a different email");
+
+    const group = await ctx.db.get(invite.groupId);
+    if (!group) throw new Error("Group not found");
+    const isAlreadyMember = group.members.some((m) => m.userId === currentUser._id);
+    if (!isAlreadyMember) {
+      await ctx.db.patch(group._id, {
+        members: [
+          ...group.members,
+          { userId: currentUser._id, role: invite.role ?? "member", joinedAt: Date.now() },
+        ],
+      });
+    }
+
+    await ctx.db.patch(invite._id, {
+      status: "accepted",
+      acceptedBy: currentUser._id,
+    });
+
+    return { success: true, groupId: group._id };
+  },
+});
+
+// Revoke an invite
+export const revokeInvite = mutation({
+  args: { inviteId: v.id("invites") },
+  handler: async (ctx, { inviteId }) => {
+    const currentUser = await ctx.runQuery(internal.users.getCurrentUser);
+    const invite = await ctx.db.get(inviteId);
+    if (!invite) throw new Error("Invite not found");
+    const group = await ctx.db.get(invite.groupId);
+    const isAdmin = group?.members.some(
+      (m) => m.userId === currentUser._id && m.role === "admin"
+    );
+    if (!isAdmin) throw new Error("Only admins can revoke invites");
+    await ctx.db.patch(inviteId, { status: "revoked" });
+    return { success: true };
   },
 });

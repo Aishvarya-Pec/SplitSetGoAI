@@ -1,5 +1,6 @@
 import { query } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { v } from "convex/values";
 
 // Get user balances
 export const getUserBalances = query({
@@ -185,6 +186,33 @@ export const getMonthlySpending = query({
   },
 });
 
+// Category breakdown for current year
+export const getCategoryBreakdown = query({
+  handler: async (ctx) => {
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const currentYear = new Date().getFullYear();
+    const startOfYear = new Date(currentYear, 0, 1).getTime();
+    const expenses = await ctx.db
+      .query("expenses")
+      .withIndex("by_date", (q) => q.gte("date", startOfYear))
+      .collect();
+    const userExpenses = expenses.filter(
+      (expense) =>
+        expense.paidByUserId === user._id ||
+        expense.splits.some((split) => split.userId === user._id)
+    );
+
+    const totals = {};
+    for (const e of userExpenses) {
+      const split = e.splits.find((s) => s.userId === user._id);
+      const cat = e.category || "Other";
+      if (!split) continue;
+      totals[cat] = (totals[cat] || 0) + split.amount;
+    }
+    return Object.entries(totals).map(([category, total]) => ({ category, total }));
+  },
+});
+
 // Get groups for the current user
 export const getUserGroups = query({
   handler: async (ctx) => {
@@ -261,5 +289,15 @@ export const getUserGroups = query({
     );
 
     return enhancedGroups;
+  },
+});
+
+// Admin: basic counts
+export const getAdminStats = query({
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    const groups = await ctx.db.query("groups").collect();
+    const expenses = await ctx.db.query("expenses").collect();
+    return { users: users.length, groups: groups.length, expenses: expenses.length };
   },
 });

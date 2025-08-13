@@ -1,7 +1,44 @@
 # Full Stack AI Splitwise Clone with Next JS, Convex, Tailwind, Inngest, Shadcn UI Tutorial 🔥🔥
 ## https://youtu.be/Ce7O3p7-YDI
 
-![splitr](https://github.com/user-attachments/assets/11e138c4-efcf-4a85-8586-f2993da118d8)
+# SplitSetGO – Smart Bill Splitting
+
+Modern, free bill‑splitting for friends and groups. Built with Next.js App Router, Convex, Clerk, Tailwind, shadcn/ui, and Inngest.
+
+## Features
+- Equal / percentage / exact splits
+- Groups with invite links and roles
+- Dashboard analytics and charts
+- Email reminders via Inngest (mock)
+- Receipt OCR (mock API) to pre‑fill expenses
+- Dark/light theme toggle
+
+## Getting Started
+1. Install deps: `npm i`
+2. Configure environment variables (Clerk, Convex, RESEND)
+3. Run dev: `npm run dev`
+
+## Architecture
+- Next.js for UI and routes
+- Convex for data and server functions
+- Inngest for workflows
+- shadcn/ui + Tailwind for polished UI
+
+## Deploy
+Deploy on Vercel. Provide env vars in the project settings.
+
+## Tests
+Run UI tests:
+```
+npm run test
+```
+
+## Diagram
+High-level architecture:
+```
+User → Next.js (App Router) → Convex (queries/mutations)
+           ↘ Inngest (workflows) → Email provider
+```
 
 ### Make sure to create a `.env` file with following variables -
 

@@ -18,9 +18,9 @@ export function BalanceSummary({ balances }) {
       )}
 
       {hasOwed && (
-        <div>
+        <div className="animate-in fade-in slide-in-from-bottom-1 duration-500">
           <h3 className="text-sm font-medium flex items-center mb-3">
-            <ArrowUpCircle className="h-4 w-4 text-green-500 mr-2" />
+            <ArrowUpCircle className="h-4 w-4 text-[#22C55E] mr-2" />
             Owed to you
           </h3>
           <div className="space-y-3">
@@ -28,7 +28,7 @@ export function BalanceSummary({ balances }) {
               <Link
                 href={`/person/${item.userId}`}
                 key={item.userId}
-                className="flex items-center justify-between hover:bg-muted p-2 rounded-md transition-colors"
+                className="flex items-center justify-between hover:bg-accent p-2 rounded-md transition"
               >
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
@@ -37,7 +37,7 @@ export function BalanceSummary({ balances }) {
                   </Avatar>
                   <span className="text-sm">{item.name}</span>
                 </div>
-                <span className="font-medium text-green-600">
+                <span className="font-medium text-[#16a34a]">
                   ${item.amount.toFixed(2)}
                 </span>
               </Link>
@@ -47,7 +47,7 @@ export function BalanceSummary({ balances }) {
       )}
 
       {hasOwing && (
-        <div>
+        <div className="animate-in fade-in slide-in-from-bottom-1 duration-500 delay-150">
           <h3 className="text-sm font-medium flex items-center mb-3">
             <ArrowDownCircle className="h-4 w-4 text-red-500 mr-2" />
             You owe
@@ -57,7 +57,7 @@ export function BalanceSummary({ balances }) {
               <Link
                 href={`/person/${item.userId}`}
                 key={item.userId}
-                className="flex items-center justify-between hover:bg-muted p-2 rounded-md transition-colors"
+                className="flex items-center justify-between hover:bg-accent p-2 rounded-md transition"
               >
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">

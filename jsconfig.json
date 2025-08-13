@@ -1,7 +1,29 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
-    }
-  }
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/app/*": ["./app/*"],
+      "@/convex/*": ["./convex/*"],
+      "@/public/*": ["./public/*"]
+    },
+    "jsx": "preserve",
+    "module": "ESNext",
+    "target": "ES2020",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "**/*.js",
+    "**/*.jsx"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "convex/_generated"
+  ]
 }
